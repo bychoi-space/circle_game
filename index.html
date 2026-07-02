@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>완벽한 원 그리기 테스트 (Draw a Perfect Circle)</title>
+  <meta name="description" content="자신의 손끝으로 얼마나 완벽한 원을 그릴 수 있는지 측정해 보세요! 모바일에 최적화된 원 그리기 정확도 테스트 게임입니다.">
+  
+  <!-- Font Preloading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Controls -->
+    <header class="app-header">
+      <div class="logo-area">
+        <h1>Perfect Circle</h1>
+        <span class="badge">PRO</span>
+      </div>
+      <div class="header-controls">
+        <button id="sound-toggle" class="control-btn" aria-label="음향 토글">
+          <svg class="icon sound-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg class="icon sound-off-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button id="info-btn" class="control-btn" aria-label="도움말">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Score Dashboard -->
+    <section class="dashboard">
+      <div class="stat-card">
+        <span class="stat-label">BEST SCORE</span>
+        <span id="best-score" class="stat-value">0.0%</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">LAST SCORE</span>
+        <span id="last-score" class="stat-value">0.0%</span>
+      </div>
+    </section>
+
+    <!-- Game Viewport -->
+    <main class="game-viewport">
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="center-point" class="center-point">
+          <div class="pulse"></div>
+        </div>
+        <div id="draw-guide-text" class="draw-guide-text">
+          <span class="guide-desktop">마우스로 클릭한 채 중심을 돌며 원을 그리세요.</span>
+          <span class="guide-mobile">화면을 터치하여 중심을 따라 한 번에 원을 그리세요.</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Actions / Controls -->
+    <footer class="app-footer">
+      <div class="guide-toggle-area">
+        <span class="guide-label">가이드 원 표시</span>
+        <label class="switch">
+          <input type="checkbox" id="guide-circle-toggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <button id="reset-canvas-btn" class="action-btn outline">초기화</button>
+    </footer>
+
+    <!-- Result Modal (Glassmorphism Overlay) -->
+    <div id="result-overlay" class="overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>측정 결과</h2>
+        </div>
+        <div class="result-score-container">
+          <div class="score-radial">
+            <svg class="progress-ring" viewBox="0 0 120 120">
+              <circle class="progress-ring-bg" cx="60" cy="60" r="52" stroke-width="8" fill="transparent"/>
+              <circle id="progress-ring-bar" class="progress-ring-bar" cx="60" cy="60" r="52" stroke-width="8" fill="transparent"/>
+            </svg>
+            <div class="score-text-wrapper">
+              <span id="result-score" class="result-score-val">0.0%</span>
+              <span id="result-grade" class="result-grade-val">A</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="result-details">
+          <div class="detail-item">
+            <span class="detail-label">중심 정밀도</span>
+            <span id="detail-center-acc" class="detail-value">0.0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">일정함 (반지름 편차)</span>
+            <span id="detail-radius-dev" class="detail-value">0.0%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">닫힘성 (일치도)</span>
+            <span id="detail-close-acc" class="detail-value">0.0%</span>
+          </div>
+        </div>
+
+        <p id="result-comment" class="result-comment">훌륭한 실력이군요! 완벽에 한 걸음 더 다가섰습니다.</p>
+        
+        <div class="modal-actions">
+          <button id="close-result-btn" class="action-btn primary">다시 그리기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-overlay" class="overlay hidden">
+      <div class="modal-card info-card">
+        <div class="modal-header">
+          <h2>게임 설명</h2>
+        </div>
+        <div class="info-content">
+          <p>화면 중앙의 <strong>붉은 점</strong>을 중심으로 가상의 원을 그리는 게임입니다.</p>
+          <ul>
+            <li>원하는 반경을 정하고 시계 또는 반시계 방향으로 원을 그립니다.</li>
+            <li>그리기가 끝나면(마우스를 떼거나 손가락을 떼면) 자동으로 정확도가 계산됩니다.</li>
+            <li>원의 원형도, 중심으로부터의 거리 균일성, 시작점과 끝점의 닫힘을 종합적으로 판단하여 점수를 매깁니다.</li>
+          </ul>
+        </div>
+        <div class="modal-actions">
+          <button id="close-info-btn" class="action-btn primary">알겠습니다</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
