@@ -79,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function drawInitialState() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (guideCircleToggle.checked && !isDrawing && !lastResult) {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = 'rgba(15, 23, 42, 0.22)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
       ctx.beginPath();
       // Draw a faint guide circle of radius 100 normalized by scale
       ctx.arc(centerCoord.x, centerCoord.y, 100 * screenScale, 0, 2 * Math.PI);
@@ -263,16 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const stdDevRadius = Math.sqrt(sumSquaredDeviation / points.length);
     // Score based on radius deviation (stdDev / avgRadius)
-    // deviation of 0% -> 100 points, 25% or more deviation -> 0 points
-    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 400);
+    // deviation of 0% -> 100 points, 35% or more deviation -> 0 points (more generous)
+    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 260);
 
     // 4. Center Precision (Target center vs centroid)
     const targetCenterX = centerCoord.x;
     const targetCenterY = centerCoord.y;
     const centerDist = Math.hypot(centroidX - targetCenterX, centroidY - targetCenterY);
-    // Score based on centroid distance compared to circle's size
-    // distance of 0px -> 100 points, distance equals avgRadius -> 0 points
-    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 200);
+    // Score based on centroid distance compared to circle's size (more generous)
+    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 120);
 
     // 5. Angular Span (Checking if it wraps full circle)
     // Find min/max angles to ensure 360 degree coverage
@@ -286,14 +285,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (gap < 0) gap += 2 * Math.PI;
       if (gap > maxGap) maxGap = gap;
     }
-    // If the largest gap is small, coverage is complete. Max gap > 90deg (1.57rad) starts penalty.
-    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 50);
+    // If the largest gap is small, coverage is complete. (more generous penalty)
+    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 35);
 
     // 6. Closure Acc (Start point vs End point distance)
     const startPoint = points[0];
     const endPoint = points[points.length - 1];
     const startEndDist = Math.hypot(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 200);
+    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 120);
 
     // Final weighted score
     let finalScore = (radiusScore * 0.5) + (centerScore * 0.3) + (closureScore * 0.2);
@@ -382,9 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function drawReferenceCircles(cx, cy, r) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Draw User Path in muted teal
-    ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
-    ctx.lineWidth = 3;
+    // 1. Draw User Path in muted blue-grey for light mode
+    ctx.strokeStyle = 'rgba(0, 180, 216, 0.6)';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
@@ -394,11 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Draw Ideal Circle (Calculated Centroid & Avg Radius)
     if (guideCircleToggle.checked) {
-      ctx.strokeStyle = '#00e676'; // success green
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 4]);
-      ctx.shadowBlur = 4;
-      ctx.shadowColor = 'rgba(0, 230, 118, 0.4)';
+      ctx.strokeStyle = '#00c853'; // success green
+      ctx.lineWidth = 3;
+      ctx.setLineDash([8, 4]);
+      ctx.shadowBlur = 0; // disabled glow shadow for light mode clarity
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 2 * Math.PI);
       ctx.stroke();
@@ -406,8 +404,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Draw Target Center reference lines
-    ctx.strokeStyle = 'rgba(255, 0, 127, 0.3)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(centerCoord.x, centerCoord.y, r, 0, 2 * Math.PI);
     ctx.stroke();
