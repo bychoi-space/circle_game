@@ -168,21 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return { score: 0, centerScore: 0, radiusScore: 0, closureScore: 0, coverageScore: 0, cx: centroidX, cy: centroidY, r: avgRadius };
     }
 
-    // 3. Radius consistency (Circular deviation) - extremely generous multiplier 100
+    // 3. Radius consistency (Circular deviation) - balanced multiplier 140
     let sumSquaredDeviation = 0;
     radii.forEach(r => {
       sumSquaredDeviation += Math.pow(r - avgRadius, 2);
     });
     const stdDevRadius = Math.sqrt(sumSquaredDeviation / pts.length);
-    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 100);
+    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 140);
 
-    // 4. Center Precision (Target center vs centroid) - extremely generous multiplier 50
+    // 4. Center Precision (Target center vs centroid) - balanced multiplier 80
     const targetCenterX = centerCoord.x;
     const targetCenterY = centerCoord.y;
     const centerDist = Math.hypot(centroidX - targetCenterX, centroidY - targetCenterY);
-    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 50);
+    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 80);
 
-    // 5. Angular Span (Checking if it wraps full circle) - extremely generous multiplier 10
+    // 5. Angular Span (Checking if it wraps full circle) - balanced multiplier 16
     const angles = pts.map(p => Math.atan2(p.y - centroidY, p.x - centroidX));
     const sortedAngles = [...angles].sort((a, b) => a - b);
     let maxGap = 0;
@@ -192,13 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (gap < 0) gap += 2 * Math.PI;
       if (gap > maxGap) maxGap = gap;
     }
-    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 10);
+    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 16);
 
-    // 6. Closure Acc (Start point vs End point distance) - extremely generous multiplier 50
+    // 6. Closure Acc (Start point vs End point distance) - balanced multiplier 80
     const startPoint = pts[0];
     const endPoint = pts[pts.length - 1];
     const startEndDist = Math.hypot(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 50);
+    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 80);
 
     // Final weighted score
     let score = (radiusScore * 0.5) + (centerScore * 0.3) + (closureScore * 0.2);
@@ -256,19 +256,23 @@ document.addEventListener('DOMContentLoaded', () => {
     drawInitialState();
   }
 
-  // Draw target center point & initial guide helper
-  function drawInitialState() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (guideCircleToggle.checked && !isDrawing && !lastResult) {
+  // Draw faint guide circle helper
+  function drawLiveGuide() {
+    if (guideCircleToggle.checked) {
       ctx.strokeStyle = 'rgba(15, 23, 42, 0.22)';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
-      // Draw a faint guide circle of radius 100 normalized by scale
       ctx.arc(centerCoord.x, centerCoord.y, 100 * screenScale, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.setLineDash([]);
     }
+  }
+
+  // Draw target center point & initial guide helper
+  function drawInitialState() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawLiveGuide();
   }
 
   // Handle resizing
@@ -389,6 +393,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Draw current path
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw guide circle if ON while drawing
+    drawLiveGuide();
     
     // Path glow styling
     ctx.strokeStyle = '#00f2fe';
