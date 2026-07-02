@@ -702,6 +702,7 @@ input:checked + .slider:before {
 
 .app-container.intro-active .logo-area {
   transform: translate(var(--logo-tx, 0px), var(--logo-ty, 0px)) scale(1.5);
+  transition: none !important;
 }
 
 /* UI Elements fade-in states */
