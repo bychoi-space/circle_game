@@ -4,6 +4,42 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  const appContainer = document.querySelector('.app-container');
+  const logoArea = document.querySelector('.logo-area');
+
+  // Activate intro state immediately
+  appContainer.classList.add('intro-active');
+
+  // Compute translation vector to center the logo area
+  function initIntroAnimation() {
+    const rect = logoArea.getBoundingClientRect();
+    const containerRect = appContainer.getBoundingClientRect();
+    
+    // Viewport relative centers within container
+    const centerX = containerRect.left + containerRect.width / 2;
+    const centerY = containerRect.top + containerRect.height / 2;
+    
+    // Logo area centers
+    const logoCenterX = rect.left + rect.width / 2;
+    const logoCenterY = rect.top + rect.height / 2;
+    
+    // Delta vector
+    const tx = centerX - logoCenterX;
+    const ty = centerY - logoCenterY;
+    
+    // Set custom CSS properties on container
+    appContainer.style.setProperty('--logo-tx', `${tx}px`);
+    appContainer.style.setProperty('--logo-ty', `${ty}px`);
+
+    // Let the browser paint, then transition out
+    setTimeout(() => {
+      appContainer.classList.remove('intro-active');
+    }, 800);
+  }
+
+  // Run calculation
+  setTimeout(initIntroAnimation, 50);
+
   // DOM Elements
   const canvas = document.getElementById('game-canvas');
   const container = document.getElementById('canvas-container');
