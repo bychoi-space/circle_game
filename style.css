@@ -50,7 +50,10 @@ html, body {
   height: 100%;
   max-width: 500px;
   margin: 0 auto;
-  background: radial-gradient(circle at top, #e2e8f0 0%, var(--bg-primary) 70%);
+  background-image: linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.92)), url('https://www.nowon.kr/math/resources/images/main/main_visual_base.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
   position: relative;
 }
