@@ -70,8 +70,6 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  transform: translate(0, 0) scale(1);
-  transition: transform 1.2s cubic-bezier(0.25, 1.1, 0.5, 1);
   z-index: 6;
 }
 
@@ -79,6 +77,8 @@ html, body {
   height: 22px;
   width: auto;
   object-fit: contain;
+  transform: translate(0, 0) scale(1);
+  transition: transform 1.2s cubic-bezier(0.25, 1.1, 0.5, 1);
 }
 
 .logo-area h1 {
@@ -89,6 +89,9 @@ html, body {
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.3px;
   white-space: nowrap;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 
@@ -700,9 +703,15 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
-.app-container.intro-active .logo-area {
-  transform: translate(var(--logo-tx, 0px), var(--logo-ty, 0px)) scale(1.5);
+.app-container.intro-active .app-logo {
+  transform: translate(var(--logo-tx, 0px), var(--logo-ty, 0px)) scale(2.2);
   transition: none !important;
+}
+
+.app-container.intro-active .logo-area h1 {
+  opacity: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
 }
 
 /* UI Elements fade-in states */
@@ -727,6 +736,7 @@ input:checked + .slider:before {
 }
 
 /* Delay for staggered fade-in */
+.app-container:not(.intro-active) .logo-area h1 { transition-delay: 0.8s; }
 .app-container:not(.intro-active) .header-controls { transition-delay: 0.2s; }
 .app-container:not(.intro-active) .dashboard { transition-delay: 0.3s; }
 .app-container:not(.intro-active) .game-viewport { transition-delay: 0.4s; }

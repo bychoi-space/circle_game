@@ -5,14 +5,14 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const appContainer = document.querySelector('.app-container');
-  const logoArea = document.querySelector('.logo-area');
+  const appLogo = document.querySelector('.app-logo');
 
   // Activate intro state immediately
   appContainer.classList.add('intro-active');
 
   // Compute translation vector to center the logo area
   function initIntroAnimation() {
-    const rect = logoArea.getBoundingClientRect();
+    const rect = appLogo.getBoundingClientRect();
     const containerRect = appContainer.getBoundingClientRect();
     
     // Viewport relative centers within container
