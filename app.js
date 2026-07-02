@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let soundEnabled = localStorage.getItem('perfect_circle_sound') !== 'false';
   let centerCoord = { x: 0, y: 0 };
   let screenScale = 1;
+  let lastResult = null;
 
   // Audio Context (Lazy Initialized)
   let audioCtx = null;
@@ -77,6 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Draw target center point & initial guide helper
   function drawInitialState() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (guideCircleToggle.checked && !isDrawing && !lastResult) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      // Draw a faint guide circle of radius 100 normalized by scale
+      ctx.arc(centerCoord.x, centerCoord.y, 100 * screenScale, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   }
 
   // Handle resizing
@@ -297,6 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showResults(score, centerScore, radiusScore, closureScore, cx, cy, r) {
+    // Save last result state
+    lastResult = { cx, cy, r };
+    
     // Save last score
     lastScoreEl.textContent = `${score.toFixed(1)}%`;
 
@@ -403,7 +417,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetCanvas() {
     points = [];
     isDrawing = false;
+    lastResult = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawInitialState();
     drawGuideText.classList.remove('hidden');
   }
 
@@ -440,6 +456,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetCanvasBtn.addEventListener('click', () => {
     resetCanvas();
+  });
+
+  // Re-draw when guide circle toggle state changes
+  guideCircleToggle.addEventListener('change', () => {
+    if (lastResult) {
+      drawReferenceCircles(lastResult.cx, lastResult.cy, lastResult.r);
+    } else {
+      drawInitialState();
+    }
   });
 
   // Confetti Particle Effect (Self-contained simple confetti canvas logic)
