@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const bestScoreEl = document.getElementById('best-score');
   const lastScoreEl = document.getElementById('last-score');
+  const realtimeScoreEl = document.getElementById('realtime-score');
   
   const resultOverlay = document.getElementById('result-overlay');
   const resultScoreEl = document.getElementById('result-score');
@@ -96,6 +97,65 @@ document.addEventListener('DOMContentLoaded', () => {
     
     localStorage.setItem('perfect_circle_history', JSON.stringify(scoreHistory));
     renderHistory();
+  }
+
+  // Real-time score calculator while drawing
+  function updateRealtimeScore() {
+    if (points.length < 10) {
+      realtimeScoreEl.textContent = '0.0%';
+      realtimeScoreEl.className = 'realtime-score bad';
+      return;
+    }
+
+    // 1. Centroid
+    let sumX = 0, sumY = 0;
+    points.forEach(p => {
+      sumX += p.x;
+      sumY += p.y;
+    });
+    const centroidX = sumX / points.length;
+    const centroidY = sumY / points.length;
+
+    // 2. Avg Radius & Radii
+    let sumRadius = 0;
+    const radii = points.map(p => {
+      const r = Math.hypot(p.x - centroidX, p.y - centroidY);
+      sumRadius += r;
+      return r;
+    });
+    const avgRadius = sumRadius / points.length;
+
+    if (avgRadius < 5) return;
+
+    // 3. Radius consistency (Circular deviation)
+    let sumSquaredDeviation = 0;
+    radii.forEach(r => {
+      sumSquaredDeviation += Math.pow(r - avgRadius, 2);
+    });
+    const stdDevRadius = Math.sqrt(sumSquaredDeviation / points.length);
+    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 260);
+
+    // 4. Center Precision (Target center vs centroid)
+    const targetCenterX = centerCoord.x;
+    const targetCenterY = centerCoord.y;
+    const centerDist = Math.hypot(centroidX - targetCenterX, centroidY - targetCenterY);
+    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 120);
+
+    // Blended real-time score (70% shape consistency, 30% center precision)
+    let runningScore = (radiusScore * 0.7) + (centerScore * 0.3);
+    runningScore = Math.max(0, Math.min(100, runningScore));
+
+    realtimeScoreEl.textContent = `${runningScore.toFixed(1)}%`;
+
+    // Apply color indicators
+    realtimeScoreEl.className = 'realtime-score';
+    if (runningScore >= 90) {
+      realtimeScoreEl.classList.add('good');
+    } else if (runningScore >= 70) {
+      realtimeScoreEl.classList.add('warn');
+    } else {
+      realtimeScoreEl.classList.add('bad');
+    }
   }
 
   // Setup Canvas Resolution
@@ -228,6 +288,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const coord = getCoordinates(e);
     points.push(coord);
     
+    // Show realtime score element
+    realtimeScoreEl.textContent = '0.0%';
+    realtimeScoreEl.className = 'realtime-score bad';
+    realtimeScoreEl.classList.remove('hidden');
+    
     playSound('draw');
   }
 
@@ -263,6 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.lineTo(points[i].x, points[i].y);
     }
     ctx.stroke();
+
+    // Update real-time score display
+    updateRealtimeScore();
   }
 
   function endDrawing(e) {
@@ -271,6 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     if (points.length < 15) {
+      // Hide realtime score and reset
+      realtimeScoreEl.classList.add('hidden');
       // Too few points
       alert('원을 더 크고 완전하게 그려보세요!');
       drawGuideText.classList.remove('hidden');
@@ -278,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    realtimeScoreEl.classList.add('hidden');
     calculateScore();
   }
 

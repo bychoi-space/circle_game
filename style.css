@@ -208,6 +208,34 @@ html, body {
   animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
+/* Real-time score display in center */
+.realtime-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  font-size: 36px;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  color: rgba(15, 23, 42, 0.16);
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
+  user-select: none;
+}
+
+.realtime-score.good {
+  color: rgba(22, 163, 74, 0.35); /* Fade success green */
+}
+
+.realtime-score.warn {
+  color: rgba(202, 138, 4, 0.3); /* Fade warning yellow */
+}
+
+.realtime-score.bad {
+  color: rgba(225, 29, 72, 0.25); /* Fade error red */
+}
+
 @keyframes pulse-ring {
   0% { transform: scale(0.95); opacity: 0.8; }
   50% { transform: scale(2.5); opacity: 0; }
