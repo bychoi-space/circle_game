@@ -66,11 +66,17 @@ html, body {
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.app-logo {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
 }
 
 .logo-area h1 {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 800;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   -webkit-background-clip: text;
@@ -78,16 +84,6 @@ html, body {
   letter-spacing: -0.5px;
 }
 
-.logo-area .badge {
-  font-size: 9px;
-  font-weight: 800;
-  background-color: var(--color-accent);
-  color: var(--text-main);
-  padding: 2px 6px;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
 
 .header-controls {
   display: flex;
