@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetCanvasBtn = document.getElementById('reset-canvas-btn');
   const guideCircleToggle = document.getElementById('guide-circle-toggle');
   const historyList = document.getElementById('history-list');
-  const clearHistoryBtn = document.getElementById('clear-history-btn');
 
   const soundOnIcon = soundToggleBtn.querySelector('.sound-on-icon');
   const soundOffIcon = soundToggleBtn.querySelector('.sound-off-icon');
@@ -572,14 +571,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   resetCanvasBtn.addEventListener('click', () => {
-    resetCanvas();
-  });
-
-  clearHistoryBtn.addEventListener('click', () => {
-    if (confirm('모든 기록을 삭제하시겠습니까?')) {
+    if (confirm('최고 점수, 최근 점수 및 히스토리 기록을 모두 초기화하시겠습니까?')) {
+      // 1. Reset Best Score
+      bestScore = 0.0;
+      localStorage.setItem('perfect_circle_best', '0.0');
+      bestScoreEl.textContent = '0.0%';
+      
+      // 2. Reset Last Score
+      lastScoreEl.textContent = '0.0%';
+      
+      // 3. Clear History
       scoreHistory = [];
       localStorage.removeItem('perfect_circle_history');
       renderHistory();
+      
+      // 4. Reset Canvas
+      resetCanvas();
     }
   });
 
