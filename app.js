@@ -25,9 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const progressRingBar = document.getElementById('progress-ring-bar');
   
   const soundToggleBtn = document.getElementById('sound-toggle');
-  const infoBtn = document.getElementById('info-btn');
-  const infoOverlay = document.getElementById('info-overlay');
-  const closeInfoBtn = document.getElementById('close-info-btn');
   const closeResultBtn = document.getElementById('close-result-btn');
   const resetCanvasBtn = document.getElementById('reset-canvas-btn');
   const guideCircleToggle = document.getElementById('guide-circle-toggle');
@@ -132,13 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
       sumSquaredDeviation += Math.pow(r - avgRadius, 2);
     });
     const stdDevRadius = Math.sqrt(sumSquaredDeviation / points.length);
-    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 260);
+    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 160);
 
     // 4. Center Precision (Target center vs centroid)
     const targetCenterX = centerCoord.x;
     const targetCenterY = centerCoord.y;
     const centerDist = Math.hypot(centroidX - targetCenterX, centroidY - targetCenterY);
-    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 120);
+    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 80);
 
     // Blended real-time score (70% shape consistency, 30% center precision)
     let runningScore = (radiusScore * 0.7) + (centerScore * 0.3);
@@ -378,15 +375,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const stdDevRadius = Math.sqrt(sumSquaredDeviation / points.length);
     // Score based on radius deviation (stdDev / avgRadius)
-    // deviation of 0% -> 100 points, 35% or more deviation -> 0 points (more generous)
-    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 260);
+    // deviation of 0% -> 100 points, 62.5% or more deviation -> 0 points (extremely generous)
+    const radiusScore = Math.max(0, 100 - (stdDevRadius / avgRadius) * 160);
 
     // 4. Center Precision (Target center vs centroid)
     const targetCenterX = centerCoord.x;
     const targetCenterY = centerCoord.y;
     const centerDist = Math.hypot(centroidX - targetCenterX, centroidY - targetCenterY);
-    // Score based on centroid distance compared to circle's size (more generous)
-    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 120);
+    // Score based on centroid distance compared to circle's size (extremely generous)
+    const centerScore = Math.max(0, 100 - (centerDist / avgRadius) * 80);
 
     // 5. Angular Span (Checking if it wraps full circle)
     // Find min/max angles to ensure 360 degree coverage
@@ -400,14 +397,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (gap < 0) gap += 2 * Math.PI;
       if (gap > maxGap) maxGap = gap;
     }
-    // If the largest gap is small, coverage is complete. (more generous penalty)
-    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 35);
+    // If the largest gap is small, coverage is complete. (extremely generous penalty)
+    const coverageScore = Math.max(0, 100 - (maxGap / (Math.PI / 2)) * 20);
 
     // 6. Closure Acc (Start point vs End point distance)
     const startPoint = points[0];
     const endPoint = points[points.length - 1];
     const startEndDist = Math.hypot(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 120);
+    const closureScore = Math.max(0, 100 - (startEndDist / avgRadius) * 80);
 
     // Final weighted score
     let finalScore = (radiusScore * 0.5) + (centerScore * 0.3) + (closureScore * 0.2);
@@ -557,13 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Modal actions
-  infoBtn.addEventListener('click', () => {
-    infoOverlay.classList.remove('hidden');
-  });
-
-  closeInfoBtn.addEventListener('click', () => {
-    infoOverlay.classList.add('hidden');
-  });
 
   closeResultBtn.addEventListener('click', () => {
     resultOverlay.classList.add('hidden');
