@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeResultBtn = document.getElementById('close-result-btn');
   const resetCanvasBtn = document.getElementById('reset-canvas-btn');
   const guideCircleToggle = document.getElementById('guide-circle-toggle');
+  const historyList = document.getElementById('history-list');
+  const clearHistoryBtn = document.getElementById('clear-history-btn');
 
   const soundOnIcon = soundToggleBtn.querySelector('.sound-on-icon');
   const soundOffIcon = soundToggleBtn.querySelector('.sound-off-icon');
@@ -45,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let centerCoord = { x: 0, y: 0 };
   let screenScale = 1;
   let lastResult = null;
+  let scoreHistory = JSON.parse(localStorage.getItem('perfect_circle_history') || '[]');
 
   // Audio Context (Lazy Initialized)
   let audioCtx = null;
@@ -52,6 +55,48 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize display scores
   bestScoreEl.textContent = `${bestScore.toFixed(1)}%`;
   updateSoundIcon();
+  renderHistory();
+
+  // Render score list
+  function renderHistory() {
+    historyList.innerHTML = '';
+    if (scoreHistory.length === 0) {
+      historyList.innerHTML = '<li class="empty-history">아직 시도한 기록이 없습니다.</li>';
+      return;
+    }
+    
+    scoreHistory.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'history-item';
+      li.innerHTML = `
+        <div class="history-item-left">
+          <span class="history-num">#${scoreHistory.length - index}</span>
+          <span class="history-score">${item.score.toFixed(1)}%</span>
+        </div>
+        <div class="history-item-right">
+          <span class="history-grade-badge ${item.grade.toLowerCase()}">${item.grade}</span>
+          <span class="history-time">${item.time}</span>
+        </div>
+      `;
+      historyList.appendChild(li);
+    });
+  }
+
+  function addScoreToHistory(score, grade) {
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // Add to beginning of array
+    scoreHistory.unshift({ score, grade, time: timeStr });
+    
+    // Keep max 10 items
+    if (scoreHistory.length > 10) {
+      scoreHistory.pop();
+    }
+    
+    localStorage.setItem('perfect_circle_history', JSON.stringify(scoreHistory));
+    renderHistory();
+  }
 
   // Setup Canvas Resolution
   function resizeCanvas() {
@@ -351,6 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
       comment = '일그러진 모양입니다. 원의 궤도를 천천히 따라가 보세요.';
     }
 
+    // Save score history
+    addScoreToHistory(score, grade);
+
     // Update Result Modal Elements
     resultScoreEl.textContent = `${score.toFixed(1)}%`;
     resultGradeEl.textContent = grade;
@@ -454,6 +502,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   resetCanvasBtn.addEventListener('click', () => {
     resetCanvas();
+  });
+
+  clearHistoryBtn.addEventListener('click', () => {
+    if (confirm('모든 기록을 삭제하시겠습니까?')) {
+      scoreHistory = [];
+      localStorage.removeItem('perfect_circle_history');
+      renderHistory();
+    }
   });
 
   // Re-draw when guide circle toggle state changes
