@@ -249,27 +249,16 @@ html, body {
 /* Draw Guide Text */
 .draw-guide-text {
   position: absolute;
-  bottom: 30px;
+  bottom: 25px;
   color: var(--text-muted);
   font-size: 11px;
+  line-height: 1.6;
   text-align: center;
   pointer-events: none;
   z-index: 1;
-  font-weight: 400;
+  font-weight: 500;
   width: 80%;
   left: 10%;
-}
-
-.draw-guide-text span {
-  display: none;
-}
-
-/* Show guide depending on media capability */
-@media (hover: hover) {
-  .guide-desktop { display: inline !important; }
-}
-@media (hover: none) {
-  .guide-mobile { display: inline !important; }
 }
 
 /* Bottom Controls */
